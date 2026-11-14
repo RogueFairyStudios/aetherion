@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="StudioApiClient" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		Non-blocking HTTP client for the Studio Server REST API.
+	</brief_description>
+	<description>
+		[StudioApiClient] queries the Studio Server ([code]/v1/me/projects[/code], [code]/v1/users/{id}/projects[/code], [code]/v1/me/workspaces[/code], [code]/v1/users/{id}/workspaces[/code], [code]/v1/configs/{tool}[/code], and [code]/v1/projects/{projectRef}/configs/{tool}[/code]) using the active [Authentik] bearer token or a [code]STUDIO_KEY[/code] service key.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="cancel">
+			<return type="void" />
+			<description>
+				Cancels any in-flight HTTP request to the Studio Server.
+			</description>
+		</method>
+		<method name="fetch_my_projects">
+			<return type="int" enum="Error" />
+			<param index="0" name="include_all_kinds" type="bool" default="false" />
+			<param index="1" name="include_archived" type="bool" default="false" />
+			<description>
+				Fetches Studio projects accessible to the authenticated user via [code]GET /v1/me/projects[/code] and emits [signal projects_loaded].
+			</description>
+		</method>
+		<method name="fetch_my_workspaces">
+			<return type="int" enum="Error" />
+			<param index="0" name="vcs" type="String" default="&quot;&quot;" />
+			<param index="1" name="track" type="String" default="&quot;&quot;" />
+			<param index="2" name="only_writable" type="bool" default="false" />
+			<description>
+				Fetches VCS workspaces, tasks, and pipeline artifacts for the authenticated user via [code]GET /v1/me/workspaces[/code] and emits [signal workspaces_loaded].
+			</description>
+		</method>
+		<method name="fetch_project_config">
+			<return type="int" enum="Error" />
+			<param index="0" name="project_ref" type="String" />
+			<param index="1" name="tool" type="String" default="&quot;aetherion&quot;" />
+			<param index="2" name="format" type="String" default="&quot;json&quot;" />
+			<description>
+				Fetches a project-scoped tool configuration manifest (in [code]json[/code] or [code]yaml[/code] format) for [param project_ref] (project UUID or slug) via [code]GET /v1/projects/{project_ref}/configs/{tool}[/code] and emits [signal config_loaded].
+			</description>
+		</method>
+		<method name="fetch_studio_config">
+			<return type="int" enum="Error" />
+			<param index="0" name="tool" type="String" default="&quot;aetherion&quot;" />
+			<param index="1" name="format" type="String" default="&quot;json&quot;" />
+			<description>
+				Fetches a generalist studio-wide tool configuration manifest (in [code]json[/code] or [code]yaml[/code] format) via [code]GET /v1/configs/{tool}[/code] and emits [signal config_loaded].
+			</description>
+		</method>
+		<method name="fetch_user_projects">
+			<return type="int" enum="Error" />
+			<param index="0" name="identifier" type="String" />
+			<param index="1" name="include_all_kinds" type="bool" default="false" />
+			<param index="2" name="include_archived" type="bool" default="false" />
+			<description>
+				Fetches Studio projects accessible to [param identifier] (UUID, username, email, or Wiki ID) via [code]GET /v1/users/{id}/projects[/code] and emits [signal projects_loaded].
+			</description>
+		</method>
+		<method name="fetch_user_workspaces">
+			<return type="int" enum="Error" />
+			<param index="0" name="identifier" type="String" />
+			<param index="1" name="vcs" type="String" default="&quot;lore&quot;" />
+			<param index="2" name="track" type="String" default="&quot;&quot;" />
+			<param index="3" name="only_writable" type="bool" default="false" />
+			<description>
+				Fetches VCS workspaces (for example Lore repositories) for [param identifier] via [code]GET /v1/users/{id}/workspaces[/code] and emits [signal workspaces_loaded].
+			</description>
+		</method>
+		<method name="get_bearer_token" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the explicit bearer token override set via [method set_bearer_token], or an empty string when delegating to [Authentik].
+			</description>
+		</method>
+		<method name="get_last_config" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Returns the most recently loaded JSON configuration manifest [Dictionary] (empty when the last configuration was fetched as [code]yaml[/code]).
+			</description>
+		</method>
+		<method name="get_last_config_raw" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the raw UTF-8 payload (JSON or YAML) from the most recent [method fetch_studio_config] or [method fetch_project_config] request.
+			</description>
+		</method>
+		<method name="get_last_error" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the human-readable error message from the last failed request.
+			</description>
+		</method>
+		<method name="get_last_http_code" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the HTTP status code from the most recent completed request, or [code]0[/code] for local/network errors.
+			</description>
+		</method>
+		<method name="get_last_projects" qualifiers="const">
+			<return type="Array" />
+			<description>
+				Returns the most recently loaded [Array] of project dictionaries.
+			</description>
+		</method>
+		<method name="get_last_user" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Returns the subject identity [Dictionary] returned alongside the last successful query.
+			</description>
+		</method>
+		<method name="get_last_workspaces" qualifiers="const">
+			<return type="Array" />
+			<description>
+				Returns the most recently loaded [Array] of workspace dictionaries.
+			</description>
+		</method>
+		<method name="get_service_key" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the explicit [code]X-Studio-Key[/code] service key override set via [method set_service_key].
+			</description>
+		</method>
+		<method name="has_credentials" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if an Authentik bearer token or [code]STUDIO_KEY[/code] service key is available.
+			</description>
+		</method>
+		<method name="is_busy" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] while an HTTP request is in flight.
+			</description>
+		</method>
+		<method name="is_configured" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if a valid Studio Server URL is configured.
+			</description>
+		</method>
+		<method name="poll">
+			<return type="void" />
+			<description>
+				Advances any pending HTTP request. Called automatically each frame when a [SceneTree] is active; call manually in headless scripts without frame ticks.
+			</description>
+		</method>
+		<method name="set_bearer_token">
+			<return type="void" />
+			<param index="0" name="bearer_token" type="String" />
+			<description>
+				Sets an explicit OAuth 2.0 / OIDC bearer token, overriding the global [Authentik] session token when non-empty.
+			</description>
+		</method>
+		<method name="set_service_key">
+			<return type="void" />
+			<param index="0" name="service_key" type="String" />
+			<description>
+				Sets an explicit [code]X-Studio-Key[/code] ([code]stk_...[/code]) service key for automated or headless Studio API calls.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="api_url" type="String" setter="set_api_url" getter="get_api_url" default="&quot;&quot;">
+			Base URL of the Studio Server (defaults to [method Authentik.get_studio_api_url] when unset).
+		</member>
+		<member name="client_slug" type="String" setter="set_client_slug" getter="get_client_slug" default="&quot;aetherion&quot;">
+			Tool identifier sent via [code]X-Studio-Client[/code] and [code]?client=[/code].
+		</member>
+		<member name="tls_verify" type="bool" setter="set_tls_verify" getter="is_tls_verify_enabled" default="true">
+			If [code]true[/code], verifies TLS server certificates on HTTPS connections.
+		</member>
+	</members>
+	<signals>
+		<signal name="config_loaded">
+			<param index="0" name="tool" type="String" />
+			<param index="1" name="project_ref" type="String" />
+			<param index="2" name="format" type="String" />
+			<param index="3" name="raw_content" type="String" />
+			<param index="4" name="parsed_config" type="Dictionary" />
+			<description>
+				Emitted when [method fetch_studio_config] or [method fetch_project_config] succeeds.
+			</description>
+		</signal>
+		<signal name="projects_loaded">
+			<param index="0" name="projects" type="Array" />
+			<param index="1" name="user" type="Dictionary" />
+			<description>
+				Emitted when [method fetch_my_projects] or [method fetch_user_projects] succeeds.
+			</description>
+		</signal>
+		<signal name="request_failed">
+			<param index="0" name="http_code" type="int" />
+			<param index="1" name="error_message" type="String" />
+			<description>
+				Emitted when a Studio Server request fails.
+			</description>
+		</signal>
+		<signal name="workspaces_loaded">
+			<param index="0" name="workspaces" type="Array" />
+			<param index="1" name="user" type="Dictionary" />
+			<description>
+				Emitted when [method fetch_my_workspaces] or [method fetch_user_workspaces] succeeds.
+			</description>
+		</signal>
+	</signals>
+</class>

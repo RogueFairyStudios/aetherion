@@ -83,6 +83,11 @@
 
 #include "modules/modules_enabled.gen.h" // For gdscript, mono. (For editor help highlighter).
 
+#ifdef MODULE_AUTHENTIK_ENABLED
+#include "modules/authentik/editor/authentik_editor_plugin.h"
+#include "modules/authentik/editor/studio_projects_panel.h"
+#endif // MODULE_AUTHENTIK_ENABLED
+
 constexpr int GODOT4_CONFIG_VERSION = 5;
 
 ProjectManager *ProjectManager::singleton = nullptr;
@@ -269,6 +274,11 @@ void ProjectManager::_update_theme(bool p_skip_creation) {
 
 		_set_main_view_icon(MAIN_VIEW_PROJECTS, get_editor_theme_icon("ProjectList"));
 		_set_main_view_icon(MAIN_VIEW_ASSETLIB, get_editor_theme_icon("AssetStore"));
+#ifdef MODULE_AUTHENTIK_ENABLED
+		if (main_view_toggle_map.has(MAIN_VIEW_STUDIO)) {
+			_set_main_view_icon(MAIN_VIEW_STUDIO, get_editor_theme_icon("Groups"));
+		}
+#endif // MODULE_AUTHENTIK_ENABLED
 
 		// Project list.
 		{
@@ -962,6 +972,51 @@ void ProjectManager::_on_projects_updated() {
 	project_list->update_dock_menu();
 }
 
+void ProjectManager::_on_studio_project_bound(const String &p_dir) {
+	if (p_dir.is_empty() || !FileAccess::exists(p_dir.path_join("project.godot"))) {
+		return;
+	}
+	project_list->add_project(p_dir, false);
+	project_list->save_config();
+	int idx = project_list->refresh_project(p_dir);
+	if (idx >= 0) {
+		project_list->select_project(idx);
+	}
+	_update_project_buttons();
+	_update_list_placeholder();
+	project_list->update_dock_menu();
+}
+
+void ProjectManager::_on_studio_project_open_requested(const String &p_dir) {
+	if (p_dir.is_empty() || !FileAccess::exists(p_dir.path_join("project.godot"))) {
+		_show_error(vformat(TTR("Can't open Studio project at '%s'.\nNo project.godot file was found in the bound folder."), p_dir));
+		return;
+	}
+	project_list->add_project(p_dir, false);
+	project_list->save_config();
+	search_box->clear();
+
+	int idx = project_list->refresh_project(p_dir);
+	if (idx >= 0) {
+		project_list->select_project(idx);
+		project_list->ensure_project_visible(idx);
+	}
+	_update_project_buttons();
+	_update_list_placeholder();
+	project_list->update_dock_menu();
+
+	_open_selected_projects_check_recovery_mode();
+}
+
+void ProjectManager::_on_studio_configure_account_requested() {
+#ifdef MODULE_AUTHENTIK_ENABLED
+	AuthentikAccountButton *acct_btn = Object::cast_to<AuthentikAccountButton>(authentik_account_button);
+	if (acct_btn) {
+		acct_btn->open_account_dialog();
+	}
+#endif // MODULE_AUTHENTIK_ENABLED
+}
+
 void ProjectManager::_on_open_options_selected(int p_option) {
 	switch (p_option) {
 		case 0: // Edit in verbose mode.
@@ -1626,6 +1681,11 @@ ProjectManager::ProjectManager() {
 		right_hbox->set_stretch_ratio(1.0);
 		title_bar->add_child(right_hbox);
 
+#ifdef MODULE_AUTHENTIK_ENABLED
+		authentik_account_button = memnew(AuthentikAccountButton);
+		right_hbox->add_child(authentik_account_button);
+#endif // MODULE_AUTHENTIK_ENABLED
+
 		quick_settings_button = memnew(Button);
 		quick_settings_button->set_flat(true);
 		quick_settings_button->set_text(TTRC("Settings"));
@@ -1873,6 +1933,18 @@ ProjectManager::ProjectManager() {
 		asset_library_toggle->set_disabled(true);
 		asset_library_toggle->set_tooltip_text(TTRC("Asset Store not available (due to using Web editor, or because SSL support disabled)."));
 	}
+
+#ifdef MODULE_AUTHENTIK_ENABLED
+	// Studio projects & Lore VCS view.
+	{
+		StudioProjectsPanel *studio_panel = memnew(StudioProjectsPanel);
+		studio_projects_panel = studio_panel;
+		_add_main_view(MAIN_VIEW_STUDIO, TTRC("Studio"), Ref<Texture2D>(), studio_panel);
+		studio_panel->connect("project_bound", callable_mp(this, &ProjectManager::_on_studio_project_bound));
+		studio_panel->connect("open_project_requested", callable_mp(this, &ProjectManager::_on_studio_project_open_requested));
+		studio_panel->connect("configure_account_requested", callable_mp(this, &ProjectManager::_on_studio_configure_account_requested));
+	}
+#endif // MODULE_AUTHENTIK_ENABLED
 
 	// Footer bar.
 	{

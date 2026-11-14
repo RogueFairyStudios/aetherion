@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="Authentik" inherits="Object" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		Global singleton for OpenID Connect (OIDC) and Authentik authentication.
+	</brief_description>
+	<description>
+		[Authentik] provides a global singleton facade around a default [AuthentikClient] configured automatically from environment variables ([code]AETHERION_AUTHENTIK_*[/code], [code]AUTHENTIK_*[/code], [code]OIDC_*[/code]), [EditorSettings] ([code]network/authentik/*[/code]), or [ProjectSettings] ([code]network/authentik/*[/code]).
+		It supports interactive browser login via OAuth 2.0 Authorization Code + PKCE (RFC 7636), headless/console login via OAuth 2.0 Device Authorization Grant (RFC 8628), automatic token refresh, and AES-256 encrypted local session persistence.
+		Additional isolated clients can be created with [method create_client].
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="cancel_login">
+			<return type="void" />
+			<description>
+				Cancels any in-progress browser or device authorization flow on the default client.
+			</description>
+		</method>
+		<method name="clear_manual_override">
+			<return type="void" />
+			<description>
+				Clears manual overrides set via [method configure] and reloads configuration from environment variables and settings.
+			</description>
+		</method>
+		<method name="complete_authorization_callback">
+			<return type="int" enum="Error" />
+			<param index="0" name="callback_url_or_query" type="String" />
+			<description>
+				Completes an interactive PKCE authorization flow using a custom URI scheme callback URL or raw query string.
+			</description>
+		</method>
+		<method name="configure">
+			<return type="void" />
+			<param index="0" name="issuer_url" type="String" />
+			<param index="1" name="client_id" type="String" />
+			<param index="2" name="scopes" type="String" default="&quot;openid profile email offline_access&quot;" />
+			<param index="3" name="redirect_uri" type="String" default="&quot;&quot;" />
+			<param index="4" name="redirect_port" type="int" default="0" />
+			<description>
+				Manually configures the default [AuthentikClient] at runtime, overriding environment variables and settings until [method clear_manual_override] is called.
+			</description>
+		</method>
+		<method name="create_client" qualifiers="const">
+			<return type="AuthentikClient" />
+			<param index="0" name="issuer_url" type="String" default="&quot;&quot;" />
+			<param index="1" name="client_id" type="String" default="&quot;&quot;" />
+			<param index="2" name="scopes" type="String" default="&quot;openid profile email offline_access&quot;" />
+			<description>
+				Creates and returns a standalone [AuthentikClient] instance for multi-provider or custom authentication workflows.
+			</description>
+		</method>
+		<method name="create_studio_client" qualifiers="const">
+			<return type="StudioApiClient" />
+			<param index="0" name="api_url" type="String" default="&quot;&quot;" />
+			<description>
+				Creates and returns a [StudioApiClient] configured with [param api_url] (or [method get_studio_api_url] when empty) that authenticates using the active Authentik session.
+			</description>
+		</method>
+		<method name="fetch_userinfo">
+			<return type="int" enum="Error" />
+			<description>
+				Requests updated profile and group claims from the OIDC UserInfo endpoint for the active session.
+			</description>
+		</method>
+		<method name="get_access_token" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the raw OAuth 2.0 access token of the active session, or an empty string if unauthenticated.
+			</description>
+		</method>
+		<method name="get_authorization_header" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns a ready-to-use HTTP [code]Authorization[/code] header value (for example [code]"Bearer &lt;token&gt;"[/code]), or an empty string if unauthenticated.
+			</description>
+		</method>
+		<method name="get_bearer_token" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns a JWT bearer token suitable for API verification (preferring the access token when it is a JWT, or falling back to the OIDC ID token).
+			</description>
+		</method>
+		<method name="get_client" qualifiers="const">
+			<return type="AuthentikClient" />
+			<description>
+				Returns the default [AuthentikClient] managed by this singleton.
+			</description>
+		</method>
+		<method name="get_client_id" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the currently configured OAuth 2.0 client ID.
+			</description>
+		</method>
+		<method name="get_issuer_url" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the currently configured OIDC issuer URL.
+			</description>
+		</method>
+		<method name="get_last_error" qualifiers="const">
+			<return type="int" enum="AuthentikClient.AuthError" />
+			<description>
+				Returns the most recent [enum AuthentikClient.AuthError] code on the default client.
+			</description>
+		</method>
+		<method name="get_last_error_message" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns a human-readable description of the most recent authentication error.
+			</description>
+		</method>
+		<method name="get_scopes" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the space-delimited OAuth 2.0 scopes requested during sign-in.
+			</description>
+		</method>
+		<method name="get_session" qualifiers="const">
+			<return type="AuthentikSession" />
+			<description>
+				Returns the active [AuthentikSession], or [code]null[/code] if not signed in.
+			</description>
+		</method>
+		<method name="get_status" qualifiers="const">
+			<return type="int" enum="AuthentikClient.Status" />
+			<description>
+				Returns the current [enum AuthentikClient.Status] of the default client.
+			</description>
+		</method>
+		<method name="get_studio_api_url" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the configured Studio Server base URL (resolved from [code]AETHERION_STUDIO_API_URL[/code], [code]STUDIO_API_URL[/code], [EditorSettings], or [ProjectSettings]).
+			</description>
+		</method>
+		<method name="has_any_group" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="groups" type="PackedStringArray" />
+			<description>
+				Returns [code]true[/code] if the authenticated user belongs to at least one group in [param groups].
+			</description>
+		</method>
+		<method name="has_entitlement" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="entitlement" type="String" />
+			<description>
+				Returns [code]true[/code] if the authenticated user holds the specified Authentik application entitlement.
+			</description>
+		</method>
+		<method name="has_environment_override" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if environment variables are currently overriding issuer or client ID settings.
+			</description>
+		</method>
+		<method name="has_group" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="group" type="String" />
+			<description>
+				Returns [code]true[/code] if the authenticated user is a member of [param group].
+			</description>
+		</method>
+		<method name="is_authenticated" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if a valid, non-expired [AuthentikSession] is currently active.
+			</description>
+		</method>
+		<method name="is_busy" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] while discovery, login, token exchange, or token refresh is in progress.
+			</description>
+		</method>
+		<method name="is_configured" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if both an issuer URL and client ID are configured.
+			</description>
+		</method>
+		<method name="login_device_code">
+			<return type="int" enum="Error" />
+			<param index="0" name="open_browser" type="bool" default="false" />
+			<description>
+				Starts an OAuth 2.0 Device Authorization Grant (RFC 8628) flow. Emits [signal device_code_received] once the user code and verification URI are issued.
+			</description>
+		</method>
+		<method name="login_interactive">
+			<return type="int" enum="Error" />
+			<param index="0" name="open_browser" type="bool" default="true" />
+			<description>
+				Starts an interactive OAuth 2.0 Authorization Code + PKCE (RFC 7636) flow with a local [code]127.0.0.1[/code] loopback listener and opens the system web browser when [param open_browser] is [code]true[/code].
+			</description>
+		</method>
+		<method name="logout">
+			<return type="void" />
+			<param index="0" name="revoke_remote" type="bool" default="false" />
+			<param index="1" name="open_end_session" type="bool" default="false" />
+			<description>
+				Clears the active session and removes any persisted session file. Optionally revokes the token at the provider and opens the OIDC end-session URL.
+			</description>
+		</method>
+		<method name="poll">
+			<return type="void" />
+			<description>
+				Advances pending network and loopback callback operations. Called automatically every frame when a [SceneTree] is active; call manually in custom [MainLoop] or headless scripts without frame ticks.
+			</description>
+		</method>
+		<method name="refresh_session">
+			<return type="int" enum="Error" />
+			<description>
+				Refreshes the current session using its OAuth 2.0 refresh token.
+			</description>
+		</method>
+		<method name="reload_settings">
+			<return type="void" />
+			<description>
+				Reloads provider settings from environment variables, [EditorSettings], or [ProjectSettings].
+			</description>
+		</method>
+		<method name="set_studio_api_url">
+			<return type="void" />
+			<param index="0" name="url" type="String" />
+			<description>
+				Manually overrides the Studio Server base URL until [method clear_manual_override] is called.
+			</description>
+		</method>
+	</methods>
+	<signals>
+		<signal name="authenticated">
+			<param index="0" name="session" type="AuthentikSession" />
+			<description>
+				Emitted when sign-in succeeds and an [AuthentikSession] becomes active.
+			</description>
+		</signal>
+		<signal name="authentication_failed">
+			<param index="0" name="error_code" type="int" />
+			<param index="1" name="error_message" type="String" />
+			<description>
+				Emitted when sign-in or token refresh fails.
+			</description>
+		</signal>
+		<signal name="authorization_url_ready">
+			<param index="0" name="url" type="String" />
+			<description>
+				Emitted when the interactive PKCE browser authorization URL has been constructed.
+			</description>
+		</signal>
+		<signal name="device_code_received">
+			<param index="0" name="user_code" type="String" />
+			<param index="1" name="verification_uri" type="String" />
+			<param index="2" name="verification_uri_complete" type="String" />
+			<param index="3" name="expires_in" type="int" />
+			<description>
+				Emitted during [method login_device_code] when the user verification code is ready to display.
+			</description>
+		</signal>
+		<signal name="logged_out">
+			<description>
+				Emitted when the active session is signed out.
+			</description>
+		</signal>
+		<signal name="session_refreshed">
+			<param index="0" name="session" type="AuthentikSession" />
+			<description>
+				Emitted when the active session's tokens are refreshed.
+			</description>
+		</signal>
+		<signal name="state_changed">
+			<param index="0" name="status" type="int" />
+			<description>
+				Emitted whenever the default client's [enum AuthentikClient.Status] changes.
+			</description>
+		</signal>
+	</signals>
+</class>
+

@@ -101,6 +101,7 @@ class ProjectManager : public Control {
 	enum MainViewTab {
 		MAIN_VIEW_PROJECTS,
 		MAIN_VIEW_ASSETLIB,
+		MAIN_VIEW_STUDIO,
 		MAIN_VIEW_MAX
 	};
 
@@ -117,6 +118,8 @@ class ProjectManager : public Control {
 
 	VBoxContainer *local_projects_vb = nullptr;
 	EditorAssetLibrary *asset_library = nullptr;
+	Button *authentik_account_button = nullptr;
+	Control *studio_projects_panel = nullptr;
 
 	EditorAbout *about_dialog = nullptr;
 
@@ -213,6 +216,9 @@ class ProjectManager : public Control {
 	void _on_project_created(const String &dir, bool edit);
 	void _on_project_duplicated(const String &p_original_path, const String &p_duplicate_path, bool p_edit);
 	void _on_projects_updated();
+	void _on_studio_project_bound(const String &p_dir);
+	void _on_studio_project_open_requested(const String &p_dir);
+	void _on_studio_configure_account_requested();
 	void _on_open_options_selected(int p_option);
 	void _on_recovery_mode_popup_open_normal();
 	void _on_recovery_mode_popup_open_recovery();

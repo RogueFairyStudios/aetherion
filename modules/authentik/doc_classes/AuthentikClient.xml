@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="AuthentikClient" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		Non-blocking OpenID Connect (OIDC) and Authentik OAuth 2.0 client.
+	</brief_description>
+	<description>
+		[AuthentikClient] implements OpenID Connect discovery (with automatic Authentik [code]/application/o/&lt;slug&gt;/[/code] endpoint derivation), Authorization Code + PKCE ([code]S256[/code]) loopback login, Device Authorization Grant login, UserInfo enrichment, token refresh, revocation, and AES-256 encrypted session storage.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="cancel_login">
+			<return type="void" />
+			<description>
+				Cancels an in-progress login operation and closes any loopback callback listener.
+			</description>
+		</method>
+		<method name="clear_stored_session" qualifiers="const">
+			<return type="void" />
+			<description>
+				Deletes the persisted encrypted session file on disk, if present.
+			</description>
+		</method>
+		<method name="complete_authorization_callback">
+			<return type="int" enum="Error" />
+			<param index="0" name="callback_url_or_query" type="String" />
+			<description>
+				Completes a pending PKCE login using a redirect URL or query string captured from a custom URI scheme handler.
+			</description>
+		</method>
+		<method name="fetch_userinfo">
+			<return type="int" enum="Error" />
+			<description>
+				Fetches claims from the OIDC UserInfo endpoint and merges them into the current [AuthentikSession].
+			</description>
+		</method>
+		<method name="get_access_token" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the raw access token of the current session, or an empty string if unauthenticated.
+			</description>
+		</method>
+		<method name="get_authorization_header" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns an HTTP [code]Authorization[/code] header string for the current session.
+			</description>
+		</method>
+		<method name="get_bearer_token" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the preferred JWT bearer token from the current session.
+			</description>
+		</method>
+		<method name="get_endpoints" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Returns a dictionary containing the resolved OIDC endpoint URLs.
+			</description>
+		</method>
+		<method name="get_last_authorization_url" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the most recently generated browser authorization URL.
+			</description>
+		</method>
+		<method name="get_last_error" qualifiers="const">
+			<return type="int" enum="AuthentikClient.AuthError" />
+			<description>
+				Returns the last [enum AuthError] recorded by this client.
+			</description>
+		</method>
+		<method name="get_last_error_message" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the human-readable message for [method get_last_error].
+			</description>
+		</method>
+		<method name="get_session" qualifiers="const">
+			<return type="AuthentikSession" />
+			<description>
+				Returns the current [AuthentikSession], or [code]null[/code] if unauthenticated.
+			</description>
+		</method>
+		<method name="get_status" qualifiers="const">
+			<return type="int" enum="AuthentikClient.Status" />
+			<description>
+				Returns the current [enum Status] of the client state machine.
+			</description>
+		</method>
+		<method name="get_user_code" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the active RFC 8628 user verification code during [constant STATUS_AWAITING_DEVICE_CODE].
+			</description>
+		</method>
+		<method name="get_verification_uri" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the verification URL where the user enters [method get_user_code].
+			</description>
+		</method>
+		<method name="get_verification_uri_complete" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the verification URL pre-populated with the user code, if provided by the server.
+			</description>
+		</method>
+		<method name="has_any_group" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="groups" type="PackedStringArray" />
+			<description>
+				Returns [code]true[/code] if the active session belongs to at least one group in [param groups].
+			</description>
+		</method>
+		<method name="has_entitlement" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="entitlement" type="String" />
+			<description>
+				Returns [code]true[/code] if the active session includes [param entitlement].
+			</description>
+		</method>
+		<method name="has_group" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="group" type="String" />
+			<description>
+				Returns [code]true[/code] if the active session belongs to [param group].
+			</description>
+		</method>
+		<method name="is_authenticated" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] when a valid, non-expired session is loaded.
+			</description>
+		</method>
+		<method name="is_busy" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] when an asynchronous authentication request is in flight.
+			</description>
+		</method>
+		<method name="is_configured" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if both [member issuer_url] and [member client_id] are non-empty.
+			</description>
+		</method>
+		<method name="load_session">
+			<return type="int" enum="Error" />
+			<description>
+				Loads an encrypted session from [member storage_path]. Automatically triggers [method refresh_session] if the access token is expired and a refresh token is available.
+			</description>
+		</method>
+		<method name="login_device_code">
+			<return type="int" enum="Error" />
+			<param index="0" name="open_browser" type="bool" default="false" />
+			<description>
+				Begins a Device Authorization Grant flow (RFC 8628).
+			</description>
+		</method>
+		<method name="login_interactive">
+			<return type="int" enum="Error" />
+			<param index="0" name="open_browser" type="bool" default="true" />
+			<description>
+				Begins an Authorization Code + PKCE flow (RFC 7636).
+			</description>
+		</method>
+		<method name="logout">
+			<return type="void" />
+			<param index="0" name="revoke_remote" type="bool" default="false" />
+			<param index="1" name="open_end_session" type="bool" default="false" />
+			<description>
+				Signs out of the active session and clears persisted credentials.
+			</description>
+		</method>
+		<method name="poll">
+			<return type="void" />
+			<description>
+				Polls active HTTP requests, loopback TCP sockets,device-code timers, and automatic token refresh.
+			</description>
+		</method>
+		<method name="refresh_session">
+			<return type="int" enum="Error" />
+			<description>
+				Exchanges the current session's refresh token for a fresh access token.
+			</description>
+		</method>
+		<method name="save_session" qualifiers="const">
+			<return type="int" enum="Error" />
+			<description>
+				Saves the current session encrypted with AES-256 to [member storage_path].
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="auto_refresh" type="bool" setter="set_auto_refresh" getter="is_auto_refresh_enabled" default="true">
+			If [code]true[/code], automatically refreshes expiring sessions within [member refresh_leeway_sec] seconds of expiry.
+		</member>
+		<member name="client_id" type="String" setter="set_client_id" getter="get_client_id" default="&quot;&quot;">
+			OAuth 2.0 public client identifier configured in Authentik or another OIDC provider.
+		</member>
+		<member name="issuer_url" type="String" setter="set_issuer_url" getter="get_issuer_url" default="&quot;&quot;">
+			OpenID Connect issuer URL (for example [code]https://auth.example.com/application/o/my-app/[/code]).
+		</member>
+		<member name="login_timeout_sec" type="int" setter="set_login_timeout_sec" getter="get_login_timeout_sec" default="300">
+			Maximum time in seconds to wait for interactive browser sign-in before timing out.
+		</member>
+		<member name="persist_session" type="bool" setter="set_persist_session" getter="is_persist_session_enabled" default="true">
+			If [code]true[/code], persists sessions to [member storage_path] using AES-256 encryption.
+		</member>
+		<member name="redirect_port" type="int" setter="set_redirect_port" getter="get_redirect_port" default="0">
+			TCP port on [code]127.0.0.1[/code] for the loopback callback server ([code]0[/code] binds an ephemeral port).
+		</member>
+		<member name="redirect_uri" type="String" setter="set_redirect_uri" getter="get_redirect_uri" default="&quot;&quot;">
+			Optional explicit redirect URI overriding the automatic [code]http://127.0.0.1:&lt;port&gt;/callback[/code] URI.
+		</member>
+		<member name="refresh_leeway_sec" type="int" setter="set_refresh_leeway_sec" getter="get_refresh_leeway_sec" default="60">
+			Number of seconds before token expiration at which automatic refresh is triggered.
+		</member>
+		<member name="scopes" type="String" setter="set_scopes" getter="get_scopes" default="&quot;openid profile email offline_access&quot;">
+			Space-separated OAuth 2.0 scopes requested during authorization.
+		</member>
+		<member name="storage_path" type="String" setter="set_storage_path" getter="get_storage_path" default="&quot;&quot;">
+			File path used for encrypted session storage. Defaults to [code]user://authentik_session.dat[/code] when empty.
+		</member>
+		<member name="tls_verify" type="bool" setter="set_tls_verify" getter="is_tls_verify_enabled" default="true">
+			If [code]true[/code], verifies TLS certificates on HTTPS requests to the identity provider.
+		</member>
+	</members>
+	<signals>
+		<signal name="authenticated">
+			<param index="0" name="session" type="AuthentikSession" />
+			<description>
+				Emitted when authentication succeeds.
+			</description>
+		</signal>
+		<signal name="authentication_failed">
+			<param index="0" name="error_code" type="int" />
+			<param index="1" name="error_message" type="String" />
+			<description>
+				Emitted when authentication or token refresh fails.
+			</description>
+		</signal>
+		<signal name="authorization_url_ready">
+			<param index="0" name="url" type="String" />
+			<description>
+				Emitted when the browser authorization URL is ready.
+			</description>
+		</signal>
+		<signal name="device_code_received">
+			<param index="0" name="user_code" type="String" />
+			<param index="1" name="verification_uri" type="String" />
+			<param index="2" name="verification_uri_complete" type="String" />
+			<param index="3" name="expires_in" type="int" />
+			<description>
+				Emitted when device authorization codes are received from the provider.
+			</description>
+		</signal>
+		<signal name="logged_out">
+			<description>
+				Emitted when the session is cleared via [method logout].
+			</description>
+		</signal>
+		<signal name="session_refreshed">
+			<param index="0" name="session" type="AuthentikSession" />
+			<description>
+				Emitted when tokens are refreshed via [method refresh_session].
+			</description>
+		</signal>
+		<signal name="state_changed">
+			<param index="0" name="status" type="int" />
+			<description>
+				Emitted whenever the client's [enum Status] changes.
+			</description>
+		</signal>
+		<signal name="userinfo_received">
+			<param index="0" name="claims" type="Dictionary" />
+			<description>
+				Emitted when profile and group claims are fetched from the OIDC UserInfo endpoint.
+			</description>
+		</signal>
+	</signals>
+	<constants>
+		<constant name="STATUS_IDLE" value="0" enum="Status">
+			Client is idle with no active session.
+		</constant>
+		<constant name="STATUS_DISCOVERING" value="1" enum="Status">
+			Fetching OpenID Connect discovery metadata.
+		</constant>
+		<constant name="STATUS_AWAITING_BROWSER_CALLBACK" value="2" enum="Status">
+			Waiting for browser authorization callback.
+		</constant>
+		<constant name="STATUS_AWAITING_DEVICE_CODE" value="3" enum="Status">
+			Polling token endpoint during Device Authorization Grant.
+		</constant>
+		<constant name="STATUS_EXCHANGING_CODE" value="4" enum="Status">
+			Exchanging authorization code for tokens.
+		</constant>
+		<constant name="STATUS_FETCHING_USERINFO" value="5" enum="Status">
+			Fetching claims from the OIDC UserInfo endpoint.
+		</constant>
+		<constant name="STATUS_REFRESHING" value="6" enum="Status">
+			Refreshing an expiring or expired session.
+		</constant>
+		<constant name="STATUS_AUTHENTICATED" value="7" enum="Status">
+			Client holds a valid authenticated session.
+		</constant>
+		<constant name="STATUS_ERROR" value="8" enum="Status">
+			Last authentication operation ended with an error.
+		</constant>
+		<constant name="AUTH_ERROR_NONE" value="0" enum="AuthError">
+			No error.
+		</constant>
+		<constant name="AUTH_ERROR_NOT_CONFIGURED" value="1" enum="AuthError">
+			Issuer URL or client ID is missing.
+		</constant>
+		<constant name="AUTH_ERROR_DISCOVERY_FAILED" value="2" enum="AuthError">
+			OIDC provider configuration could not be resolved.
+		</constant>
+		<constant name="AUTH_ERROR_LOOPBACK_BIND_FAILED" value="3" enum="AuthError">
+			Failed to bind local loopback TCP port on [code]127.0.0.1[/code].
+		</constant>
+		<constant name="AUTH_ERROR_BROWSER_OPEN_FAILED" value="4" enum="AuthError">
+			Failed to launch the system web browser.
+		</constant>
+		<constant name="AUTH_ERROR_STATE_MISMATCH" value="5" enum="AuthError">
+			OAuth 2.0 [code]state[/code] parameter did not match (CSRF protection).
+		</constant>
+		<constant name="AUTH_ERROR_PROVIDER_DENIED" value="6" enum="AuthError">
+			Identity provider denied or aborted authorization.
+		</constant>
+		<constant name="AUTH_ERROR_TOKEN_EXCHANGE_FAILED" value="7" enum="AuthError">
+			Token endpoint rejected the authorization code or device code exchange.
+		</constant>
+		<constant name="AUTH_ERROR_INVALID_TOKEN" value="8" enum="AuthError">
+			Received token failed issuer, audience, expiration, or nonce validation.
+		</constant>
+		<constant name="AUTH_ERROR_REFRESH_FAILED" value="9" enum="AuthError">
+			Refresh token grant failed or expired.
+		</constant>
+		<constant name="AUTH_ERROR_TIMEOUT" value="10" enum="AuthError">
+			Operation timed out waiting for user or network completion.
+		</constant>
+		<constant name="AUTH_ERROR_NETWORK" value="11" enum="AuthError">
+			Underlying network or TLS connection failed.
+		</constant>
+		<constant name="AUTH_ERROR_CANCELLED" value="12" enum="AuthError">
+			Authentication flow was cancelled by the caller.
+		</constant>
+	</constants>
+</class>
+

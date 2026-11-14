@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="AuthentikSession" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		Represents an authenticated OpenID Connect / Authentik user session.
+	</brief_description>
+	<description>
+		[AuthentikSession] encapsulates OAuth 2.0 tokens ([member access_token], [member id_token], [member refresh_token]), decoded OIDC identity properties ([member subject], [member display_name], [member username], [member email]), and Authentik RBAC claims ([member groups], [member entitlements]).
+		String conversion and [method to_summary_dictionary] intentionally omit raw token values so sessions can be logged safely without leaking credentials.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_authorization_header" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns a formatted HTTP [code]Authorization[/code] header string (for example [code]"Bearer &lt;token&gt;"[/code]).
+			</description>
+		</method>
+		<method name="get_bearer_token" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the JWT bearer token preferred for backend API authorization (returning [member access_token] when it is a JWT, or [member id_token] when the access token is opaque).
+			</description>
+		</method>
+		<method name="get_claim" qualifiers="const">
+			<return type="Variant" />
+			<param index="0" name="key" type="String" />
+			<param index="1" name="default" type="Variant" default="null" />
+			<description>
+				Returns the claim named [param key] from [member claims], or [param default] if absent.
+			</description>
+		</method>
+		<method name="get_seconds_until_expiry" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the remaining lifetime of the access token in seconds relative to current UTC system time.
+			</description>
+		</method>
+		<method name="has_all_groups" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="groups" type="PackedStringArray" />
+			<description>
+				Returns [code]true[/code] if the user belongs to every group listed in [param groups].
+			</description>
+		</method>
+		<method name="has_any_group" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="groups" type="PackedStringArray" />
+			<description>
+				Returns [code]true[/code] if the user belongs to at least one group listed in [param groups].
+			</description>
+		</method>
+		<method name="has_entitlement" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="entitlement" type="String" />
+			<description>
+				Returns [code]true[/code] if [member entitlements] contains [param entitlement].
+			</description>
+		</method>
+		<method name="has_group" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="group" type="String" />
+			<description>
+				Returns [code]true[/code] if [member groups] contains [param group].
+			</description>
+		</method>
+		<method name="has_refresh_token" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if a non-empty refresh token is available.
+			</description>
+		</method>
+		<method name="is_expired" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="leeway_sec" type="int" default="0" />
+			<description>
+				Returns [code]true[/code] if the session has expired (or will expire within [param leeway_sec] seconds).
+			</description>
+		</method>
+		<method name="to_summary_dictionary" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Returns a dictionary of non-sensitive user metadata (subject, display name, username, email, groups, entitlements, expiry) safe for UI display or logging.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="access_token" type="String" setter="" getter="get_access_token" default="&quot;&quot;">
+			Raw OAuth 2.0 access token.
+		</member>
+		<member name="claims" type="Dictionary" setter="" getter="get_claims" default="{}">
+			Merged dictionary of decoded OIDC token and UserInfo claims.
+		</member>
+		<member name="client_id" type="String" setter="" getter="get_client_id" default="&quot;&quot;">
+			OAuth 2.0 client ID associated with this session.
+		</member>
+		<member name="display_name" type="String" setter="" getter="get_display_name" default="&quot;&quot;">
+			Human-readable display name from the [code]name[/code] claim (falling back to username or email).
+		</member>
+		<member name="email" type="String" setter="" getter="get_email" default="&quot;&quot;">
+			User email address from the [code]email[/code] claim.
+		</member>
+		<member name="email_verified" type="bool" setter="" getter="is_email_verified" default="false">
+			Whether the user's email address has been verified by the identity provider.
+		</member>
+		<member name="entitlements" type="PackedStringArray" setter="" getter="get_entitlements" default="PackedStringArray()">
+			Authentik application entitlements granted to the user.
+		</member>
+		<member name="expires_at" type="int" setter="" getter="get_expires_at" default="0">
+			Unix UTC timestamp (seconds) when the access token expires.
+		</member>
+		<member name="groups" type="PackedStringArray" setter="" getter="get_groups" default="PackedStringArray()">
+			Group names from the OIDC [code]groups[/code] claim.
+		</member>
+		<member name="id_token" type="String" setter="" getter="get_id_token" default="&quot;&quot;">
+			Raw OpenID Connect JWT ID token.
+		</member>
+		<member name="issuer" type="String" setter="" getter="get_issuer" default="&quot;&quot;">
+			Normalized OIDC issuer URL that issued this session.
+		</member>
+		<member name="refresh_token" type="String" setter="" getter="get_refresh_token" default="&quot;&quot;">
+			OAuth 2.0 refresh token, when [code]offline_access[/code] scope was granted.
+		</member>
+		<member name="scope" type="String" setter="" getter="get_scope" default="&quot;&quot;">
+			Space-separated scopes granted for this session.
+		</member>
+		<member name="subject" type="String" setter="" getter="get_subject" default="&quot;&quot;">
+			Unique OIDC subject identifier ([code]sub[/code] claim).
+		</member>
+		<member name="token_type" type="String" setter="" getter="get_token_type" default="&quot;Bearer&quot;">
+			OAuth 2.0 token type (typically [code]"Bearer"[/code]).
+		</member>
+		<member name="username" type="String" setter="" getter="get_username" default="&quot;&quot;">
+			Username from [code]preferred_username[/code] or [code]nickname[/code].
+		</member>
+	</members>
+</class>
+
