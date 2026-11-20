@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GoetheProject" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		Read-only view of a Goethe narrative project manifest ([code].gproj.yaml[/code]).
+	</brief_description>
+	<description>
+		[GoetheProject] loads character sheets, mood-specific portrait paths, scene registries, and global project variables authored in Goethe Dialogue Studio.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_author" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the project author string.
+			</description>
+		</method>
+		<method name="get_character" qualifiers="const">
+			<return type="Dictionary" />
+			<param index="0" name="id_or_name" type="String" />
+			<description>
+				Returns the character profile dictionary matching [param id_or_name], with portrait paths resolved relative to the manifest.
+			</description>
+		</method>
+		<method name="get_character_ids" qualifiers="const">
+			<return type="PackedStringArray" />
+			<description>
+				Returns all character IDs defined in the cast.
+			</description>
+		</method>
+		<method name="get_default_locale" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the default BCP-47 locale configured for the project.
+			</description>
+		</method>
+		<method name="get_dialogues_dir" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the resolved dialogues directory path.
+			</description>
+		</method>
+		<method name="get_global_flags" qualifiers="const">
+			<return type="PackedStringArray" />
+			<description>
+				Returns the registered project-wide boolean flag names.
+			</description>
+		</method>
+		<method name="get_global_vars" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Returns the registered project-wide default variables.
+			</description>
+		</method>
+		<method name="get_last_error" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the last parse or file error message.
+			</description>
+		</method>
+		<method name="get_locales_dir" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the resolved locales directory path.
+			</description>
+		</method>
+		<method name="get_portrait_path" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="character_id" type="String" />
+			<param index="1" name="mood" type="String" default="&quot;&quot;" />
+			<description>
+				Resolves the portrait asset path for [param character_id] and optional [param mood], falling back to the character's default portrait.
+			</description>
+		</method>
+		<method name="get_portraits_dir" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the resolved portraits directory path.
+			</description>
+		</method>
+		<method name="get_project_name" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the human-readable project name.
+			</description>
+		</method>
+		<method name="get_scene" qualifiers="const">
+			<return type="Dictionary" />
+			<param index="0" name="id_or_path" type="String" />
+			<description>
+				Returns the scene entry dictionary matching [param id_or_path].
+			</description>
+		</method>
+		<method name="get_scene_path" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="scene_id" type="String" />
+			<description>
+				Returns the resolved dialogue YAML path for [param scene_id].
+			</description>
+		</method>
+		<method name="get_scenes" qualifiers="const">
+			<return type="Array" />
+			<description>
+				Returns all scene entries registered in the project manifest.
+			</description>
+		</method>
+		<method name="get_source_path" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the manifest path passed to [method load_from_file].
+			</description>
+		</method>
+		<method name="get_version" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the project manifest version string.
+			</description>
+		</method>
+		<method name="has_character" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="id_or_name" type="String" />
+			<description>
+				Returns [code]true[/code] if a character matching [param id_or_name] exists in the cast.
+			</description>
+		</method>
+		<method name="is_loaded" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] when a manifest is loaded.
+			</description>
+		</method>
+		<method name="load_from_file">
+			<return type="int" enum="Error" />
+			<param index="0" name="path" type="String" />
+			<description>
+				Loads a [code].gproj.yaml[/code] manifest from [param path].
+			</description>
+		</method>
+		<method name="load_from_yaml">
+			<return type="int" enum="Error" />
+			<param index="0" name="yaml_content" type="String" />
+			<description>
+				Loads a project manifest from an in-memory YAML string.
+			</description>
+		</method>
+	</methods>
+</class>

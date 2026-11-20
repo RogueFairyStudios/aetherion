@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GoetheLocaleManager" inherits="Node" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		Scene node wrapper around Goethe's CLDR-aware localization catalog manager ([code].gtl[/code]).
+	</brief_description>
+	<description>
+		[GoetheLocaleManager] manages Goethe [code].gtl[/code] translation catalogs, CLDR plural forms, parameter interpolation, and optional synchronization with [TranslationServer].
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_locale" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the active Goethe locale code.
+			</description>
+		</method>
+		<method name="has_key" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="key" type="String" />
+			<description>
+				Returns [code]true[/code] if [param key] exists in the active locale fallback chain.
+			</description>
+		</method>
+		<method name="has_key_in_locale" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="key" type="String" />
+			<param index="1" name="locale" type="String" />
+			<description>
+				Returns [code]true[/code] if [param key] exists specifically in [param locale].
+			</description>
+		</method>
+		<method name="load_catalog">
+			<return type="void" />
+			<param index="0" name="path" type="String" />
+			<description>
+				Loads a [code].gtl[/code] catalog file from [code]res://[/code], [code]user://[/code], or an absolute path.
+			</description>
+		</method>
+		<method name="load_from_package">
+			<return type="void" />
+			<param index="0" name="package_path" type="String" />
+			<param index="1" name="locale" type="String" />
+			<description>
+				Loads [code]locales/&lt;locale&gt;.gtl[/code] from inside a compressed [code].gdkg[/code] package.
+			</description>
+		</method>
+		<method name="set_locale">
+			<return type="void" />
+			<param index="0" name="locale" type="String" />
+			<description>
+				Sets the active locale code and emits [signal locale_changed].
+			</description>
+		</method>
+		<method name="translate" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="key" type="String" />
+			<description>
+				Translates [param key] using the active locale and fallback chain.
+			</description>
+		</method>
+		<method name="translate_plural" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="key" type="String" />
+			<param index="1" name="n" type="int" />
+			<description>
+				Translates [param key] for count [param n] using CLDR plural rules.
+			</description>
+		</method>
+		<method name="translate_plural_with_params" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="key" type="String" />
+			<param index="1" name="n" type="int" />
+			<param index="2" name="params" type="Dictionary" />
+			<description>
+				Translates [param key] for count [param n] with placeholder substitution from [param params].
+			</description>
+		</method>
+		<method name="translate_with_params" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="key" type="String" />
+			<param index="1" name="params" type="Dictionary" />
+			<description>
+				Translates [param key] and substitutes [code]{placeholder}[/code] values from [param params].
+			</description>
+		</method>
+		<method name="unload_all">
+			<return type="void" />
+			<description>
+				Unloads all registered translation catalogs.
+			</description>
+		</method>
+		<method name="unload_locale">
+			<return type="void" />
+			<param index="0" name="locale" type="String" />
+			<description>
+				Unloads the catalog for [param locale].
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="sync_with_godot_locale" type="bool" setter="set_sync_with_godot_locale" getter="get_sync_with_godot_locale" default="false">
+			When [code]true[/code], automatically tracks [method TranslationServer.get_locale] changes each frame.
+		</member>
+	</members>
+	<signals>
+		<signal name="locale_changed">
+			<param index="0" name="new_locale" type="String" />
+			<description>
+				Emitted whenever [method set_locale] changes the active locale.
+			</description>
+		</signal>
+	</signals>
+</class>

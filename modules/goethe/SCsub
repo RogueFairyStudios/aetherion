@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+from misc.utility.scons_hints import *
+
+import os
+import subprocess
+import sys
+
+from methods import print_warning
+
+Import("env")
+Import("env_modules")
+
+GOETHE_REQUIRED_VERSION = "0.2.0"
+
+env_goethe = env_modules.Clone()
+
+
+def _resolve_goethe_sdk_candidates() -> list[str]:
+    candidates = []
+    explicit = ARGUMENTS.get("goethe_sdk_path", os.getenv("GOETHE_SDK_PATH", "")).strip()
+    if explicit:
+        candidates.append(explicit)
+
+    local_appdata = os.getenv("LOCALAPPDATA")
+    if local_appdata and not os.getenv("MSYSTEM"):
+        candidates.append(os.path.join(local_appdata, "Godot", "build_deps", "goethe"))
+
+    candidates.append(Dir("#bin/build_deps/goethe").abspath)
+
+    # Sibling local checkout fallback for studio workspace builds
+    repo_root = Dir("#").abspath
+    sibling_goethe = os.path.normpath(os.path.join(repo_root, "..", "goethe"))
+    candidates.append(os.path.join(sibling_goethe, "build_sdk_test", "sdk_install"))
+    candidates.append(os.path.join(sibling_goethe, "build", "goethe_sdk"))
+    return candidates
+
+
+def _is_valid_sdk(path: str) -> bool:
+    if not path or not os.path.isdir(path):
+        return False
+    hdr = os.path.join(path, "include", "goethe", "goethe_dialog.h")
+    return os.path.isfile(hdr)
+
+
+sdk_path = ""
+for candidate in _resolve_goethe_sdk_candidates():
+    if _is_valid_sdk(candidate):
+        sdk_path = candidate
+        break
+
+if not sdk_path and os.getenv("GOETHE_AUTO_DOWNLOAD", "0") == "1":
+    installer = os.path.join(Dir("#").abspath, "misc", "scripts", "install_goethe.py")
+    if os.path.isfile(installer):
+        try:
+            subprocess.check_call([sys.executable, installer, "--version", GOETHE_REQUIRED_VERSION])
+            for candidate in _resolve_goethe_sdk_candidates():
+                if _is_valid_sdk(candidate):
+                    sdk_path = candidate
+                    break
+        except Exception as exc:
+            print_warning(f"Goethe SDK auto-download failed: {exc}")
+
+if sdk_path:
+    env_goethe.Prepend(CPPPATH=[os.path.join(sdk_path, "include")])
+    env_goethe.Append(CPPDEFINES=["GOETHE_STATIC_LIB", "GOETHE_EXTERNAL_SDK"])
+
+    # Stage pre-built Goethe shared library (and optional plugins) alongside engine binary in #bin/
+    if env["platform"] == "windows":
+        dll_candidates = [
+            os.path.join(sdk_path, "bin", "goethe.dll"),
+            os.path.join(sdk_path, "lib", "goethe.dll"),
+        ]
+        for dll_src in dll_candidates:
+            if os.path.isfile(dll_src):
+                env.CommandNoCache("#bin/goethe.dll", dll_src, Copy("$TARGET", "$SOURCE"))
+                break
+        plugin_dll = os.path.join(sdk_path, "bin", "goethe_plugin_elevenlabs.dll")
+        if not os.path.isfile(plugin_dll):
+            plugin_dll = os.path.join(sdk_path, "plugins", "goethe_plugin_elevenlabs.dll")
+        if os.path.isfile(plugin_dll):
+            env.CommandNoCache("#bin/goethe_plugin_elevenlabs.dll", plugin_dll, Copy("$TARGET", "$SOURCE"))
+
+    elif env["platform"] == "linuxbsd":
+        so_src = os.path.join(sdk_path, "lib", "libgoethe.so")
+        if os.path.isfile(so_src):
+            env.CommandNoCache("#bin/libgoethe.so", so_src, Copy("$TARGET", "$SOURCE"))
+            env.CommandNoCache("#bin/libgoethe.so.0", so_src, Copy("$TARGET", "$SOURCE"))
+
+    elif env["platform"] == "macos":
+        dylib_src = os.path.join(sdk_path, "lib", "libgoethe.dylib")
+        if os.path.isfile(dylib_src):
+            env.CommandNoCache("#bin/libgoethe.dylib", dylib_src, Copy("$TARGET", "$SOURCE"))
+            env.CommandNoCache("#bin/libgoethe.0.dylib", dylib_src, Copy("$TARGET", "$SOURCE"))
+else:
+    print_warning(
+        "Pre-built Goethe SDK was not found in build_deps/goethe.\n"
+        f"Install the official binary release with `python3 {os.path.join('misc', 'scripts', 'install_goethe.py')}` "
+        "so `goethe.dll` / `libgoethe` is staged alongside Aetherion binaries."
+    )
+    env_goethe.Append(CPPDEFINES=["GOETHE_STATIC_LIB"])
+
+module_obj = []
+env_goethe.add_source_files(module_obj, "*.cpp")
+env.modules_sources += module_obj

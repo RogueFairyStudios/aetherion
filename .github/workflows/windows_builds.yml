@@ -104,6 +104,16 @@ jobs:
             echo "ACCESSKIT_ENABLED=no" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Download pre-built Goethe SDK
+        shell: sh
+        env:
+          GOETHE_GITHUB_TOKEN: ${{ secrets.GOETHE_READ_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! python ./misc/scripts/install_goethe.py; then
+            echo "::warning::Goethe pre-built SDK download failed; building without staged goethe.dll."
+          fi
+
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:

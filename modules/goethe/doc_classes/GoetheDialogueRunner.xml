@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GoetheDialogueRunner" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		Interactive state-machine runner for [GoetheDialogue] conversations.
+	</brief_description>
+	<description>
+		[GoetheDialogueRunner] drives a [GoetheDialogue] through its branching state machine, evaluating conditions and applying effects via optional duck-typed hooks on [member context] while emitting presentation signals.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="abort">
+			<return type="void" />
+			<param index="0" name="reason" type="String" default="&quot;&quot;" />
+			<description>
+				Aborts the active dialogue run immediately and emits [signal dialogue_aborted].
+			</description>
+		</method>
+		<method name="advance">
+			<return type="void" />
+			<description>
+				Advances past the current linear beat when not waiting on player choices.
+			</description>
+		</method>
+		<method name="get_choices" qualifiers="const">
+			<return type="Array" />
+			<description>
+				Returns the resolved choices currently offered at the active node.
+			</description>
+		</method>
+		<method name="get_context" qualifiers="const">
+			<return type="Object" />
+			<description>
+				Returns the game-state context object assigned via [method set_context], or [code]null[/code].
+			</description>
+		</method>
+		<method name="get_current_node" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Returns a copy of the most recently presented node payload dictionary.
+			</description>
+		</method>
+		<method name="get_current_node_id" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the ID of the currently presented node.
+			</description>
+		</method>
+		<method name="get_dialogue" qualifiers="const">
+			<return type="GoetheDialogue" />
+			<description>
+				Returns the [GoetheDialogue] currently bound to this runner.
+			</description>
+		</method>
+		<method name="get_dialogue_id" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the ID of the active dialogue.
+			</description>
+		</method>
+		<method name="get_state" qualifiers="const">
+			<return type="int" enum="GoetheDialogueRunner.State" />
+			<description>
+				Returns the current state machine state.
+			</description>
+		</method>
+		<method name="is_active" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] while a dialogue is actively running, waiting for a choice, or suspended.
+			</description>
+		</method>
+		<method name="is_waiting_choice" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] when the runner is waiting for [method select_choice].
+			</description>
+		</method>
+		<method name="resume">
+			<return type="void" />
+			<description>
+				Resumes a suspended dialogue run.
+			</description>
+		</method>
+		<method name="select_choice">
+			<return type="bool" />
+			<param index="0" name="choice_id" type="String" />
+			<description>
+				Selects the choice identified by [param choice_id]. Returns [code]false[/code] if the choice is unavailable or disabled.
+			</description>
+		</method>
+		<method name="set_context">
+			<return type="void" />
+			<param index="0" name="context" type="Object" />
+			<description>
+				Sets the optional game-state context object queried for condition and effect hooks.
+			</description>
+		</method>
+		<method name="start">
+			<return type="int" enum="Error" />
+			<param index="0" name="dialogue" type="GoetheDialogue" />
+			<description>
+				Starts running [param dialogue] from its start node.
+			</description>
+		</method>
+		<method name="suspend">
+			<return type="void" />
+			<description>
+				Suspends the active dialogue run.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="raw_keys" type="bool" setter="set_raw_keys" getter="is_raw_keys" default="false">
+			When [code]true[/code], skips [GoetheLocaleManager] translation and emits raw localization keys.
+		</member>
+	</members>
+	<signals>
+		<signal name="choice_selected">
+			<param index="0" name="node_id" type="String" />
+			<param index="1" name="choice_id" type="String" />
+			<description>
+				Emitted after a player choice has been accepted.
+			</description>
+		</signal>
+		<signal name="choices_offered">
+			<param index="0" name="node_id" type="String" />
+			<param index="1" name="choices" type="Array" />
+			<description>
+				Emitted when choices become available on [param node_id].
+			</description>
+		</signal>
+		<signal name="dialogue_aborted">
+			<param index="0" name="dialogue_id" type="String" />
+			<param index="1" name="reason" type="String" />
+			<description>
+				Emitted when the dialogue aborts early.
+			</description>
+		</signal>
+		<signal name="dialogue_completed">
+			<param index="0" name="dialogue_id" type="String" />
+			<description>
+				Emitted when the dialogue reaches completion.
+			</description>
+		</signal>
+		<signal name="dialogue_resumed">
+			<param index="0" name="node_id" type="String" />
+			<description>
+				Emitted when a suspended dialogue resumes.
+			</description>
+		</signal>
+		<signal name="dialogue_started">
+			<param index="0" name="dialogue_id" type="String" />
+			<description>
+				Emitted when a dialogue begins executing.
+			</description>
+		</signal>
+		<signal name="dialogue_suspended">
+			<param index="0" name="node_id" type="String" />
+			<description>
+				Emitted when the dialogue is suspended.
+			</description>
+		</signal>
+		<signal name="effect_triggered">
+			<param index="0" name="effect" type="Dictionary" />
+			<description>
+				Emitted whenever a node or choice effect fires.
+			</description>
+		</signal>
+		<signal name="node_presented">
+			<param index="0" name="node" type="Dictionary" />
+			<description>
+				Emitted when a dialogue beat is presented to the UI.
+			</description>
+		</signal>
+	</signals>
+	<constants>
+		<constant name="STATE_IDLE" value="0" enum="State">
+			No dialogue has been started yet.
+		</constant>
+		<constant name="STATE_STARTING" value="1" enum="State">
+			Runner is initializing a dialogue run.
+		</constant>
+		<constant name="STATE_RUNNING" value="2" enum="State">
+			A linear dialogue beat is active and awaiting [method advance].
+		</constant>
+		<constant name="STATE_WAITING_CHOICE" value="3" enum="State">
+			Choices have been presented and the runner is awaiting [method select_choice].
+		</constant>
+		<constant name="STATE_SUSPENDED" value="4" enum="State">
+			The dialogue run is paused via [method suspend].
+		</constant>
+		<constant name="STATE_COMPLETED" value="5" enum="State">
+			The dialogue reached its end cleanly.
+		</constant>
+		<constant name="STATE_ABORTED" value="6" enum="State">
+			The dialogue was aborted via [method abort] or an error.
+		</constant>
+	</constants>
+</class>

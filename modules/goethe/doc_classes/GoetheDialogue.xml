@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GoetheDialogue" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../doc/class.xsd">
+	<brief_description>
+		Parsed Goethe branching dialogue resource loaded from GSF-A or simple YAML.
+	</brief_description>
+	<description>
+		[GoetheDialogue] holds an immutable parsed Goethe dialogue tree loaded via the pre-built Goethe native runtime ([code]goethe.dll[/code] / [code]libgoethe[/code]). Load once and pass to one or more [GoetheDialogueRunner] instances.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_id" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the dialogue identifier defined in YAML.
+			</description>
+		</method>
+		<method name="get_last_error" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the most recent load or parse error message, or an empty string if none occurred.
+			</description>
+		</method>
+		<method name="get_metadata" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Returns the key-value metadata dictionary attached to the dialogue.
+			</description>
+		</method>
+		<method name="get_node_count" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the number of nodes in the loaded dialogue.
+			</description>
+		</method>
+		<method name="get_node_ids" qualifiers="const">
+			<return type="PackedStringArray" />
+			<description>
+				Returns all node IDs in declaration order.
+			</description>
+		</method>
+		<method name="get_node_info" qualifiers="const">
+			<return type="Dictionary" />
+			<param index="0" name="node_id" type="String" />
+			<description>
+				Returns static structural metadata for [param node_id] (speaker, tags, line keys, choices, auto-advance).
+			</description>
+		</method>
+		<method name="get_source_path" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the file path passed to [method load_from_file], or an empty string when loaded from raw YAML.
+			</description>
+		</method>
+		<method name="get_speakers" qualifiers="const">
+			<return type="PackedStringArray" />
+			<description>
+				Returns the unique speaker entity IDs referenced across all nodes.
+			</description>
+		</method>
+		<method name="get_start_node" qualifiers="const">
+			<return type="String" />
+			<description>
+				Returns the entry node ID ([code]startNode[/code] or the first node).
+			</description>
+		</method>
+		<method name="has_node" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="node_id" type="String" />
+			<description>
+				Returns [code]true[/code] if the dialogue contains a node with ID [param node_id].
+			</description>
+		</method>
+		<method name="is_loaded" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] when a valid dialogue tree is loaded.
+			</description>
+		</method>
+		<method name="load_from_file">
+			<return type="int" enum="Error" />
+			<param index="0" name="path" type="String" />
+			<description>
+				Loads and parses a Goethe YAML dialogue file from [code]res://[/code], [code]user://[/code], or an absolute path.
+			</description>
+		</method>
+		<method name="load_from_yaml">
+			<return type="int" enum="Error" />
+			<param index="0" name="yaml_content" type="String" />
+			<description>
+				Parses a Goethe dialogue directly from an in-memory YAML string.
+			</description>
+		</method>
+		<method name="to_yaml" qualifiers="const">
+			<return type="String" />
+			<description>
+				Serializes the loaded dialogue back to canonical YAML text.
+			</description>
+		</method>
+		<method name="validate" qualifiers="const">
+			<return type="PackedStringArray" />
+			<description>
+				Validates structural integrity (duplicate IDs, missing [code]startNode[/code], dangling choice targets) and returns any problem descriptions.
+			</description>
+		</method>
+	</methods>
+</class>
