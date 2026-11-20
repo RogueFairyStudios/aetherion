@@ -324,7 +324,12 @@ EditorThemeManager::ThemeConfiguration EditorThemeManager::_create_theme_config(
 			const float light_contrast = -0.06;
 
 			// Please use alphabetical order if you're adding a new color preset here.
-			if (config.preset == "Black (OLED)") {
+			if (config.preset == "Aetherion Obsidian") {
+				preset_accent_color = Color::html("#d6b77a");
+				preset_base_color = Color::html("#16181d");
+				preset_contrast = 0.36;
+				preset_icon_saturation = 1.15;
+			} else if (config.preset == "Black (OLED)") {
 				preset_accent_color = Color(0.45, 0.75, 1.0);
 				preset_base_color = Color(0, 0, 0);
 				// The contrast rate value is irrelevant on a fully black theme.
@@ -341,6 +346,9 @@ EditorThemeManager::ThemeConfiguration EditorThemeManager::_create_theme_config(
 				preset_accent_color = Color(0.44, 0.73, 0.98);
 				preset_base_color = Color(0.21, 0.24, 0.29);
 				preset_icon_saturation = 1;
+			} else if (config.preset == "Godot 4") {
+				preset_accent_color = Color(0.337, 0.62, 1.0);
+				preset_base_color = Color(0.161, 0.161, 0.161);
 			} else if (config.preset == "Gray") {
 				preset_accent_color = Color(0.44, 0.73, 0.98);
 				preset_base_color = Color(0.24, 0.24, 0.24);
@@ -357,9 +365,11 @@ EditorThemeManager::ThemeConfiguration EditorThemeManager::_create_theme_config(
 				preset_accent_color = Color(0.15, 0.55, 0.82);
 				preset_base_color = Color(0.89, 0.86, 0.79);
 				preset_contrast = light_contrast;
-			} else { // Default
-				preset_accent_color = Color(0.337, 0.62, 1.0);
-				preset_base_color = Color(0.161, 0.161, 0.161);
+			} else { // Default (Aetherion Arcano Tecnológico: Charcoal #16181D + Arcane Gold #D6B77A)
+				preset_accent_color = Color::html("#d6b77a");
+				preset_base_color = Color::html("#16181d");
+				preset_contrast = 0.36;
+				preset_icon_saturation = 1.15;
 			}
 
 			config.accent_color = preset_accent_color;

@@ -132,9 +132,8 @@
 #include "editor/settings/editor_settings.h"
 #include "editor/translations/editor_translation.h"
 
-#if defined(TOOLS_ENABLED) && !defined(NO_EDITOR_SPLASH)
+#include "main/app_icon_editor.gen.h"
 #include "main/splash_editor.gen.h"
-#endif
 
 #ifndef DISABLE_DEPRECATED
 #include "editor/project_upgrade/project_converter_3_to_4.h"
@@ -4010,8 +4009,10 @@ void Main::setup_boot_logo() {
 
 		Color boot_bg_color = GLOBAL_GET("application/boot_splash/bg_color");
 
-#if defined(TOOLS_ENABLED) && !defined(NO_EDITOR_SPLASH)
-		boot_bg_color = GLOBAL_DEF_BASIC("application/boot_splash/bg_color", (editor || project_manager) ? boot_splash_editor_bg_color : boot_splash_bg_color);
+#ifdef TOOLS_ENABLED
+		if (editor || project_manager) {
+			boot_bg_color = boot_splash_editor_bg_color;
+		}
 #endif
 		if (boot_logo.is_valid()) {
 			RenderingServer::get_singleton()->set_boot_image_with_stretch(boot_logo, boot_bg_color, boot_stretch_mode, boot_logo_filter);
@@ -4019,8 +4020,10 @@ void Main::setup_boot_logo() {
 		} else {
 #ifndef NO_DEFAULT_BOOT_LOGO
 			MAIN_PRINT("Main: Create bootsplash");
-#if defined(TOOLS_ENABLED) && !defined(NO_EDITOR_SPLASH)
-			Ref<Image> splash = (editor || project_manager) ? memnew(Image(boot_splash_editor_png)) : memnew(Image(boot_splash_png));
+#ifdef TOOLS_ENABLED
+			Ref<Image> splash = (editor || project_manager)
+					? memnew(Image(boot_splash_editor_png, sizeof(boot_splash_editor_png)))
+					: memnew(Image(boot_splash_png, sizeof(boot_splash_png)));
 #else
 			Ref<Image> splash = memnew(Image(boot_splash_png, sizeof(boot_splash_png)));
 #endif
@@ -4034,7 +4037,9 @@ void Main::setup_boot_logo() {
 
 #if defined(TOOLS_ENABLED) && defined(MACOS_ENABLED)
 		if (DisplayServer::get_singleton()->has_feature(DisplayServerEnums::FEATURE_ICON) && OS::get_singleton()->get_bundle_icon_path().is_empty()) {
-			Ref<Image> icon = memnew(Image(app_icon_png, sizeof(app_icon_png)));
+			Ref<Image> icon = (editor || project_manager)
+					? memnew(Image(app_icon_editor_png, sizeof(app_icon_editor_png)))
+					: memnew(Image(app_icon_png, sizeof(app_icon_png)));
 			DisplayServer::get_singleton()->set_icon(icon);
 		}
 #endif
@@ -4879,7 +4884,13 @@ int Main::start() {
 	}
 
 	if (DisplayServer::get_singleton()->has_feature(DisplayServerEnums::FEATURE_ICON) && !has_icon && OS::get_singleton()->get_bundle_icon_path().is_empty()) {
+#ifdef TOOLS_ENABLED
+		Ref<Image> icon = (editor || project_manager)
+				? memnew(Image(app_icon_editor_png, sizeof(app_icon_editor_png)))
+				: memnew(Image(app_icon_png, sizeof(app_icon_png)));
+#else
 		Ref<Image> icon = memnew(Image(app_icon_png, sizeof(app_icon_png)));
+#endif
 		DisplayServer::get_singleton()->set_icon(icon);
 	}
 

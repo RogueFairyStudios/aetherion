@@ -22,12 +22,11 @@ def make_splash_editor(target, source, env):
     buffer = methods.get_buffer(str(source[0]))
 
     with methods.generated_wrapper(str(target[0])) as file:
-        # The editor splash background color is taken from the default editor theme's background color.
-        # This helps achieve a visually "smoother" transition between the splash screen and the editor.
+        # Match Aetherion Core obsidian background (#070310) for a seamless splash transition.
         file.write(f"""\
 #include "core/math/color.h"
 
-static const Color boot_splash_editor_bg_color = Color(0.125, 0.145, 0.192);
+static const Color boot_splash_editor_bg_color = Color(7.0f / 255.0f, 3.0f / 255.0f, 16.0f / 255.0f);
 inline constexpr const unsigned char boot_splash_editor_png[] = {{
 	{methods.format_buffer(buffer, 1)}
 }};
@@ -41,6 +40,17 @@ def make_app_icon(target, source, env):
         # Use a neutral gray color to better fit various kinds of projects.
         file.write(f"""\
 inline constexpr const unsigned char app_icon_png[] = {{
+	{methods.format_buffer(buffer, 1)}
+}};
+""")
+
+
+def make_app_icon_editor(target, source, env):
+    buffer = methods.get_buffer(str(source[0]))
+
+    with methods.generated_wrapper(str(target[0])) as file:
+        file.write(f"""\
+inline constexpr const unsigned char app_icon_editor_png[] = {{
 	{methods.format_buffer(buffer, 1)}
 }};
 """)

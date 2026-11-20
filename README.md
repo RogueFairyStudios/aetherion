@@ -1,76 +1,45 @@
-# Godot Engine
+# Aetherion — Game Engine
 
 <p align="center">
-  <a href="https://godotengine.org">
-    <img src="misc/logo/logo_outlined.svg" width="400" alt="Godot Engine logo">
-  </a>
+  <img src="misc/logo/aetherion/aetherion-core-256.png" width="220" alt="Aetherion Core emblem">
 </p>
 
-## 2D and 3D cross-platform game engine
+<p align="center">
+  <em>A custom <a href="https://godotengine.org">Godot Engine</a> distribution by Rogue Fairy Studios.</em>
+</p>
 
-**[Godot Engine](https://godotengine.org) is a feature-packed, cross-platform
-game engine to create 2D and 3D games from a unified interface.** It provides a
-comprehensive set of [common tools](https://godotengine.org/features), so that
-users can focus on making games without having to reinvent the wheel. Games can
-be exported with one click to a number of platforms, including the major desktop
-platforms (Linux, macOS, Windows), mobile platforms (Android, iOS), as well as
-Web-based platforms and [consoles](https://godotengine.org/consoles).
+---
 
-## Free, open source and community-driven
+**Aetherion** is an open-source 2D and 3D game engine distribution maintained by **Rogue Fairy Studios** on top of **[Godot Engine](https://godotengine.org)** (`4.8`), tailored for narrative-driven and adventure games and studio production pipelines.
 
-Godot is completely free and open source under the very permissive [MIT license](https://godotengine.org/license).
-No strings attached, no royalties, nothing. The users' games are theirs, down
-to the last line of engine code. Godot's development is fully independent and
-community-driven, empowering users to help shape their engine to match their
-expectations. It is supported by the [Godot Foundation](https://godot.foundation/)
-not-for-profit.
+> **Upstream Attribution & Non-Endorsement Notice:**  
+> Aetherion is proudly built upon [Godot Engine](https://github.com/godotengine/godot) and distributed under the same [MIT license](LICENSE.txt). Aetherion is an independent distribution by Rogue Fairy Studios and is **not** an official product of, affiliated with, or endorsed by the [Godot Foundation](https://godot.foundation/). Exported games do not impose Aetherion branding onto user projects.
 
-Before being open sourced in [February 2014](https://github.com/godotengine/godot/commit/0b806ee0fc9097fa7bda7ac0109191c9c5e0a1ac),
-Godot had been developed by [Juan Linietsky](https://github.com/reduz) and
-[Ariel Manzur](https://github.com/punto-) for several years as an in-house
-engine, used to publish several work-for-hire titles.
+## Highlights on the `aetherion` Branch
 
-![Screenshot of a 3D scene in the Godot Engine editor](https://raw.githubusercontent.com/godotengine/godot-design/master/screenshots/editor_tps_demo_1920x1080.jpg)
+- **Arcano Tecnológico Interface (`Aetherion Obsidian`):** High-contrast Obsidian (`#0B0C10`), Charcoal (`#16181D`), and Arcane Gold (`#D6B77A`) default editor theme preset alongside classic Godot presets.
+- **Native OpenID Connect / Authentik Module (`modules/authentik/`):** Built-in OAuth 2.0 Authorization Code + PKCE (`S256`) and Device Authorization Grant (RFC 8628) client, AES-256 encrypted session storage, Editor/Project Manager account integration, and `StudioApiClient` workspace browser (with zero hardcoded organization URLs or client IDs).
+- **Isolated Editor Configuration:** Stores editor settings and sessions in its own `Aetherion` configuration directory so it can coexist side-by-side with stock Godot installations.
 
-## Getting the engine
+## Building from Source
 
-### Binary downloads
+Active Aetherion development lives on the **`aetherion`** branch (`master` tracks upstream `godotengine/godot`). Building requires **Python 3.10+** and **SCons 4.4+**:
 
-Official binaries for the Godot editor and the export templates can be found
-[on the Godot website](https://godotengine.org/download).
+```bash
+git clone --branch aetherion https://github.com/RogueFairyStudios/aetherion.git
+cd aetherion
+python -m pip install scons
 
-### Compiling from source
+# Build the editor (use platform=windows, linuxbsd, or macos)
+scons platform=windows target=editor
+```
 
-[See the official docs](https://docs.godotengine.org/en/latest/engine_details/development/compiling)
-for compilation instructions for every supported platform.
+Editor binaries are written to `bin/aetherion.<platform>.editor.<arch>[.exe]`. Export template builds (`target=template_debug` / `target=template_release`) retain standard `bin/godot.*` naming and neutral runtime defaults.
 
-## Community and contributing
+Platform-specific compiler prerequisites are documented in the [Godot Engine compilation guide](https://docs.godotengine.org/en/latest/engine_details/development/compiling/).
 
-Godot is not only an engine but an ever-growing community of users and engine
-developers. The main community channels are listed [on the homepage](https://godotengine.org/community).
+## License & Credits
 
-The best way to get in touch with the core engine developers is to join the
-[Godot Contributors Chat](https://chat.godotengine.org).
-
-To get started contributing to the project, see the [contributing guide](CONTRIBUTING.md).
-This document also includes guidelines for reporting bugs.
-
-## Documentation and demos
-
-The official documentation is hosted on [Read the Docs](https://docs.godotengine.org).
-It is maintained by the Godot community in its own [GitHub repository](https://github.com/godotengine/godot-docs).
-
-The [class reference](https://docs.godotengine.org/en/latest/classes/)
-is also accessible from the Godot editor.
-
-We also maintain official demos in their own [GitHub repository](https://github.com/godotengine/godot-demo-projects)
-as well as the [Asset Store](https://store.godotengine.org/).
-
-There are also a number of other
-[learning resources](https://docs.godotengine.org/en/latest/community/tutorials.html)
-provided by the community, such as text and video tutorials, demos, etc.
-Consult the [community channels](https://godotengine.org/community)
-for more information.
-
-[![Code Triagers Badge](https://www.codetriage.com/godotengine/godot/badges/users.svg)](https://www.codetriage.com/godotengine/godot)
-[![Translate on Weblate](https://hosted.weblate.org/widgets/godot-engine/-/godot/svg-badge.svg)](https://hosted.weblate.org/engage/godot-engine/?utm_source=widget)
+- **Aetherion additions & branding:** © Rogue Fairy Studios (code distributed under the [MIT license](LICENSE.txt)).
+- **Godot Engine:** © 2014-present [Godot Engine contributors](AUTHORS.md) · © 2007-2014 Juan Linietsky, Ariel Manzur ([MIT license](LICENSE.txt)).
+- Third-party component notices are listed in [COPYRIGHT.txt](COPYRIGHT.txt).

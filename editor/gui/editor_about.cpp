@@ -57,8 +57,11 @@ void EditorAbout::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_TRANSLATION_CHANGED: {
 			_about_text_label->set_text(
+					TTR("A custom Godot Engine distribution by Rogue Fairy Studios.") + "\n" +
+					String(U"© Rogue Fairy Studios\n") +
 					String(U"© 2014-present ") + TTR("Godot Engine contributors") + ".\n" +
-					String(U"© 2007-2014 Juan Linietsky, Ariel Manzur.\n"));
+					String(U"© 2007-2014 Juan Linietsky, Ariel Manzur.\n") +
+					TTR("Independent open-source distribution; not affiliated with or endorsed by the Godot Foundation."));
 
 			_project_manager_label->set_text(TTR("Project Manager", "Job Title"));
 

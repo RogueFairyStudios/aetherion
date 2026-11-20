@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Aetherion
+GenericName=Game Engine
+Comment=A custom Godot Engine distribution by Rogue Fairy Studios
+Exec=aetherion %f
+Icon=aetherion
+Terminal=false
+Type=Application
+MimeType=application/x-godot-project;
+Categories=Development;IDE;
+StartupNotify=true
+StartupWMClass=Aetherion
+

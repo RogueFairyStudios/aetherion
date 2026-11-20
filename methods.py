@@ -1231,8 +1231,9 @@ def generate_vs_project(env, original_args, project_name="godot"):
     sources_active = []
     others_active = []
 
+    exe_stem = "aetherion" if env.editor_build and env["library_type"] == "executable" else "godot"
     get_dependencies(
-        env.File(f"#bin/godot{env['PROGSUFFIX']}"), env, extensions, headers_active, sources_active, others_active
+        env.File(f"#bin/{exe_stem}{env['PROGSUFFIX']}"), env, extensions, headers_active, sources_active, others_active
     )
 
     all_items = []
@@ -1291,7 +1292,7 @@ def generate_vs_project(env, original_args, project_name="godot"):
 
         for x in itemlist.keys():
             properties.append(f"<ActiveProjectItemList_{x}>;{';'.join(itemlist[x])};</ActiveProjectItemList_{x}>")
-        output = os.path.join("bin", f"godot{env['PROGSUFFIX']}")
+        output = os.path.join("bin", f"{exe_stem}{env['PROGSUFFIX']}")
 
         # The modules_enabled.gen.h header containing the defines is only generated on build, and only for the most recently built
         # platform, which means VS can't properly render code that's inside module-specific ifdefs. This adds those defines to the
