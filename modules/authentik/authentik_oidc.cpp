@@ -105,13 +105,9 @@ Error AuthentikOIDC::base64url_decode(const String &p_input, PackedByteArray &r_
 Error AuthentikOIDC::generate_random_token(int p_byte_length, String &r_token) {
 	ERR_FAIL_COND_V(p_byte_length <= 0 || p_byte_length > 512, ERR_INVALID_PARAMETER);
 
-	CryptoCore::RandomGenerator rng;
-	Error err = rng.init();
-	ERR_FAIL_COND_V(err != OK, err);
-
 	PackedByteArray bytes;
 	bytes.resize(p_byte_length);
-	err = rng.get_random_bytes(bytes.ptrw(), p_byte_length);
+	Error err = CryptoCore::generate_random(bytes.ptrw(), size_t(p_byte_length));
 	ERR_FAIL_COND_V(err != OK, err);
 
 	r_token = base64url_encode(bytes);

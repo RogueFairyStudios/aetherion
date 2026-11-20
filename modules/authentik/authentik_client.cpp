@@ -33,6 +33,7 @@
 #include "core/io/dir_access.h"
 #include "core/io/file_access.h"
 #include "core/io/json.h"
+#include "core/object/callable_mp.h"
 #include "core/object/class_db.h"
 #include "core/os/os.h"
 #include "scene/main/scene_tree.h"
@@ -330,7 +331,7 @@ void AuthentikClient::_poll_http() {
 	auto finish_http_response = [this]() {
 		HttpPurpose done_purpose = http_purpose;
 		int code = http_response_code;
-		List<String> resp_headers = http_response_headers;
+		List<String> resp_headers(http_response_headers);
 		PackedByteArray body_bytes = http_response_body;
 		HTTPClient::Method orig_method = http_method;
 		Vector<String> orig_headers = http_headers;

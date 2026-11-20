@@ -33,6 +33,7 @@
 #ifdef TOOLS_ENABLED
 
 #include "core/io/file_access.h"
+#include "core/object/callable_mp.h"
 #include "core/os/os.h"
 #include "core/string/translation_server.h"
 #include "editor/editor_string_names.h"
@@ -318,7 +319,6 @@ AuthentikAccountDialog::AuthentikAccountDialog() {
 	save_hb->add_child(save_settings_button);
 
 	import_config_dialog = memnew(EditorFileDialog);
-	import_config_dialog->set_previews_enabled(false);
 	import_config_dialog->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
 	import_config_dialog->set_file_mode(EditorFileDialog::FILE_MODE_OPEN_FILE);
 	import_config_dialog->set_title(TTR("Import Studio Configuration Manifest (.json)"));

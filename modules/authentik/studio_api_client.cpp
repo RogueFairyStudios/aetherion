@@ -34,6 +34,7 @@
 #include "authentik_oidc.h"
 
 #include "core/io/json.h"
+#include "core/object/callable_mp.h"
 #include "core/object/class_db.h"
 #include "core/os/os.h"
 #include "scene/main/scene_tree.h"
@@ -798,7 +799,7 @@ void StudioApiClient::poll() {
 		String done_proj = pending_config_project;
 		String done_fmt = pending_config_format;
 		int code = http_response_code;
-		List<String> resp_headers = http_response_headers;
+		List<String> resp_headers(http_response_headers);
 		PackedByteArray body_bytes = http_response_body;
 		Vector<String> orig_headers = http_headers;
 		int redirects = http_redirects;
